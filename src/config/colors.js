@@ -1,7 +1,7 @@
 // User-Agent for all NWS API calls. NWS asks API consumers to identify
 // themselves with contact info. See https://www.weather.gov/documentation/services-web-api
 export const USER_AGENT =
-  'q-weather-usa-pro/1.0.0 ' + '(https://github.com/fabioc-aloha/Q-Weather-USA-Pro)';
+  'q-weather-usa-pro/1.0.1 ' + '(https://github.com/fabioc-aloha/Q-Weather-USA-Pro)';
 
 /**
  * Color palette used to render forecast keys.

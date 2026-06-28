@@ -1,26 +1,25 @@
+import q from 'daskeyboard-applet';
+
+import { fetchJson } from '../util/http.js';
 import { USER_AGENT, WEATHER } from '../config/colors.js';
 
+const logger = q.logger;
 const NWS_BASE = 'https://api.weather.gov';
 
 /**
  * GET helper for NWS endpoints. Adds the required User-Agent header and
- * parses JSON. Throws on non-2xx.
+ * the geo+json Accept type. Inherits timeout + error handling from fetchJson.
  *
  * @param {string} url
  * @returns {Promise<any>}
  */
-async function nwsGet(url) {
-  const res = await fetch(url, {
+function nwsGet(url) {
+  return fetchJson(url, {
     headers: {
       'User-Agent': USER_AGENT,
       Accept: 'application/geo+json',
     },
   });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`NWS HTTP ${res.status} for ${url}: ${body.slice(0, 200)}`);
-  }
-  return res.json();
 }
 
 /**
@@ -67,7 +66,7 @@ export async function getForecast(forecastUrl) {
  *
  * @param {number} lat
  * @param {number} lon
- * @returns {Promise<{event: string, severity: string, headline: string, url: string} | null>}
+ * @returns {Promise<{event: string, severity: string, headline: string} | null>}
  */
 export async function getActiveAlert(lat, lon) {
   const latStr = Number(lat).toFixed(4);
@@ -76,18 +75,20 @@ export async function getActiveAlert(lat, lon) {
   const features = Array.isArray(body.features) ? body.features : [];
   if (features.length === 0) return null;
 
-  const ranked = features
-    .map((f) => f.properties || {})
-    .filter((p) => p.event)
-    .sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
-  if (ranked.length === 0) return null;
+  const candidates = features.map((f) => f.properties || {});
+  const eventful = candidates.filter((a) => a.event);
+  const dropped = candidates.length - eventful.length;
+  if (dropped > 0) {
+    logger.warn(`Dropped ${dropped} NWS alert(s) with no 'event' field at ${latStr},${lonStr}`);
+  }
+  if (eventful.length === 0) return null;
 
+  const ranked = eventful.sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
   const top = ranked[0];
   return {
     event: top.event,
     severity: top.severity || 'Unknown',
     headline: top.headline || top.event,
-    url: top['@id'] || '',
   };
 }
 
@@ -119,7 +120,7 @@ export function severityRank(sev) {
  *
  * Examples of values NWS returns: "Sunny", "Mostly Sunny", "Partly Cloudy",
  * "Cloudy", "Chance Showers And Thunderstorms", "Slight Chance Rain Showers",
- * "Snow Likely", "Heavy Snow", "Patchy Fog", etc.
+ * "Snow Likely", "Heavy Snow", "Freezing Rain", "Patchy Fog", etc.
  *
  * @param {string} shortForecast
  * @returns {string} A value from WEATHER.
@@ -128,7 +129,12 @@ export function shortForecastToWeatherType(shortForecast) {
   if (!shortForecast || typeof shortForecast !== 'string') return WEATHER.UNKNOWN;
   const s = shortForecast.toLowerCase();
 
-  // Order matters: more specific / more severe conditions first.
+  // Order matters: more specific / more severe conditions first. Note that
+  // "Freezing Rain" / "Freezing Drizzle" must be classified as SNOW (frozen
+  // precip) BEFORE the rain/drizzle branch would catch them.
+  if (s.includes('freezing')) {
+    return WEATHER.SNOW;
+  }
   if (
     s.includes('snow') ||
     s.includes('blizzard') ||
@@ -152,6 +158,7 @@ export function shortForecastToWeatherType(shortForecast) {
   if (s.includes('clear') || s.includes('fair')) {
     return WEATHER.CLEAR;
   }
+  logger.warn(`Unknown NWS shortForecast: "${shortForecast}"`);
   return WEATHER.UNKNOWN;
 }
 

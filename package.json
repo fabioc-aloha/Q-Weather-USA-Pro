@@ -3,7 +3,7 @@
   "displayName": "Q Weather USA Pro",
   "description": "Modern US weather forecast and severe-weather alerts for Das Keyboard Q.",
   "longDescription": "Q Weather USA Pro displays a 4-day NWS forecast plus active severe-weather alerts on your Das Keyboard Q. Search any US city by name (no zone IDs). Click a key to open the official NWS forecast page.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "fabioc-aloha",
   "officialProductName": "Q Weather USA Pro",
   "appUrl": "https://github.com/fabioc-aloha/Q-Weather-USA-Pro",
@@ -63,6 +63,8 @@
         "help": "Type a city name (e.g. Charlotte, Austin, Seattle). Selects the official NWS forecast point for that location.",
         "required": true,
         "order": 1,
+        "value": "35.2271,-80.8431|Charlotte, North Carolina",
+        "valueLabel": "Charlotte, North Carolina",
         "controlType": "search",
         "options": []
       }

@@ -1,33 +1,42 @@
+import { fetchJson } from '../util/http.js';
 import { USER_AGENT } from '../config/colors.js';
 
 /**
  * Search US cities by name using Open-Meteo's free geocoding API
  * (no API key required, no rate-limit on reasonable use).
  *
+ * The Open-Meteo API has no built-in country filter, so we ask for a wide
+ * pool (default 100, its maximum) and then post-filter to US. Without this,
+ * short ambiguous prefixes like "c" or "char" return zero US matches —
+ * the top 15 global results happen to be non-US, and US cities never even
+ * appear in the response.
+ *
  * @param {string} query - Free-text city name (e.g. "Charlotte", "Austin TX").
- * @param {number} [limit=10] - Max results to return (1..20).
+ * @param {number} [limit=15] - Max US results to return to the caller.
  * @returns {Promise<Array<{key: string, value: string, lat: number, lon: number}>>}
  *   Options shaped for the Q Desktop search picker.
  */
-export async function searchUsCities(query, limit = 10) {
+export async function searchUsCities(query, limit = 15) {
   if (!query || !query.trim()) return [];
   const url = new URL('https://geocoding-api.open-meteo.com/v1/search');
   url.searchParams.set('name', query.trim());
-  url.searchParams.set('count', String(Math.min(Math.max(limit, 1), 20)));
+  // Always ask for the API max so US results have a chance to appear even
+  // for ambiguous short prefixes. Open-Meteo caps `count` at 100.
+  url.searchParams.set('count', '100');
   url.searchParams.set('language', 'en');
   url.searchParams.set('format', 'json');
 
-  const res = await fetch(url, {
+  const body = await fetchJson(url, {
     headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
   });
-  if (!res.ok) {
-    throw new Error(`Geocoding HTTP ${res.status}`);
-  }
-  const body = await res.json();
   const results = Array.isArray(body.results) ? body.results : [];
 
-  // US-only filter (this applet's scope).
-  return results.filter((r) => r.country_code === 'US').map((r) => geocodeResultToOption(r));
+  // US-only filter (this applet's scope), then truncate to the caller's limit.
+  const safeLimit = Math.min(Math.max(limit, 1), 100);
+  return results
+    .filter((r) => r.country_code === 'US')
+    .slice(0, safeLimit)
+    .map((r) => geocodeResultToOption(r));
 }
 
 /**

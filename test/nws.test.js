@@ -27,6 +27,12 @@ test('shortForecastToWeatherType handles common NWS phrases', () => {
   assert.equal(shortForecastToWeatherType('Heavy Snow'), WEATHER.SNOW);
   assert.equal(shortForecastToWeatherType('Snow Showers'), WEATHER.SNOW, 'Snow outranks shower');
   assert.equal(shortForecastToWeatherType('Blizzard Conditions'), WEATHER.SNOW);
+  assert.equal(
+    shortForecastToWeatherType('Freezing Rain'),
+    WEATHER.SNOW,
+    'Freezing precip must outrank the rain branch',
+  );
+  assert.equal(shortForecastToWeatherType('Freezing Drizzle'), WEATHER.SNOW);
 });
 
 test('shortForecastToWeatherType returns UNKNOWN for unfamiliar input', () => {

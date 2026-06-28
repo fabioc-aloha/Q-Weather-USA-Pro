@@ -1,10 +1,10 @@
 // Manual smoke test: hits the real NWS + Open-Meteo APIs.
 // Not part of the test suite (no network in CI sandboxing rules).
-// Run with: node test/smoke.js
+// Run with: node scripts/dev/smoke.dev.js
 
-import { searchUsCities, parseLocationKey } from '../src/providers/geocoding.js';
-import { resolvePoint, getForecast, getActiveAlert } from '../src/providers/nws.js';
-import { selectDaytimePeriods, renderRow } from '../src/render/forecast-to-keys.js';
+import { searchUsCities, parseLocationKey } from '../../src/providers/geocoding.js';
+import { resolvePoint, getForecast, getActiveAlert } from '../../src/providers/nws.js';
+import { selectDaytimePeriods, renderRow } from '../../src/render/forecast-to-keys.js';
 
 const point = (color, effect) => ({ color, effect: effect || 'SET_COLOR' });
 

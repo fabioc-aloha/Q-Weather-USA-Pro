@@ -33,6 +33,14 @@ test('selectDaytimePeriods picks daytime periods up to count', () => {
   );
 });
 
+test('selectDaytimePeriods returns [] when input contains only nighttime periods', () => {
+  const nights = [
+    { name: 'Tonight', isDaytime: false, shortForecast: 'Mostly Clear' },
+    { name: 'Monday Night', isDaytime: false, shortForecast: 'Partly Cloudy' },
+  ];
+  assert.deepEqual(selectDaytimePeriods(nights, 4), []);
+});
+
 test('selectDaytimePeriods tolerates missing or empty input', () => {
   assert.deepEqual(selectDaytimePeriods(null, 4), []);
   assert.deepEqual(selectDaytimePeriods([], 4), []);

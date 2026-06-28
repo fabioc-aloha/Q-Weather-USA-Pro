@@ -98,12 +98,19 @@ export class WeatherPro extends q.DesktopApp {
       const width = this.geometry?.width || 4;
       const periods = selectDaytimePeriods(forecast.periods, width);
 
+      // Empty-forecast guard: NWS occasionally returns 0 periods (transient
+      // upstream issue or location at the edge of a grid boundary). Surface
+      // the gap instead of silently rendering 4 grey "unknown" keys.
+      if (periods.length === 0) {
+        logger.warn(`NWS returned no daytime periods for ${name}`);
+        return q.Signal.error([`Forecast temporarily unavailable for ${name}.`]);
+      }
+
       const row = renderRow({
         periods,
         width,
         alert,
-        pointFactory: (color, effect) =>
-          effect ? new q.Point(color, q.Effects[effect] || effect) : new q.Point(color),
+        pointFactory: (color, effect) => (effect ? new q.Point(color, effect) : new q.Point(color)),
       });
 
       return new q.Signal({
@@ -111,7 +118,11 @@ export class WeatherPro extends q.DesktopApp {
         name: alert ? `${alert.event} \u2014 ${name}` : name,
         message: renderMessage({ locationName: name, alert, periods }),
         link: {
-          url: alert?.url || nwsForecastPageUrl(lat, lon),
+          // Always link to the human-readable NWS forecast page. The alert
+          // JSON endpoint (`alert['@id']`) returns raw JSON, not an HTML
+          // page — it just downloads a file in the browser. Alert details
+          // are surfaced in the hover/click message instead.
+          url: nwsForecastPageUrl(lat, lon),
           label: alert ? 'View alert details' : 'Open NWS forecast',
         },
       });

@@ -15,60 +15,100 @@ search by city name, not by zone code).
 
 Four keys, one per upcoming day:
 
-| Color | Weather |
-|---|---|
-| Yellow | Clear or sunny |
-| Purple | Cloudy / overcast / fog |
-| Blue | Rain / showers / drizzle |
-| Red | Thunderstorm / hail |
-| White | Snow / sleet / blizzard |
+| Color            | Weather                                                     |
+| ---------------- | ----------------------------------------------------------- |
+| Yellow           | Clear or sunny                                              |
+| Purple           | Cloudy / overcast / fog                                     |
+| Blue             | Rain / showers / drizzle                                    |
+| Red              | Thunderstorm / hail                                         |
+| White            | Snow / sleet / blizzard                                     |
 | **Flashing red** | **Active severe-weather alert** (pushes onto the first key) |
 
 Hover or click a key for the detailed forecast and to open the NWS page.
 
 ## Install
 
-This applet is not in the Das Keyboard marketplace. Install it manually:
+This applet is not in the Das Keyboard marketplace. Install it manually using
+the included scripts. Q Desktop loads applets from a JSON **registry** at
+`~/.quio/v2/q_storage/main/extensions`, **not** by scanning the
+`q_extensions/` folder — so a plain folder copy will not work. The scripts
+handle the registry edit, slot copy, and `npm install` in one shot. The
+registry is backed up before every install or uninstall so changes are
+always reversible.
 
 ### Prerequisites
 
 - Das Keyboard Q series + Q Desktop app
 - Node.js 18+ ([`nvm`](https://github.com/coreybutler/nvm-windows) or your installer of choice)
-- Git
+- Git, npm
 
-### Option 1: Sideload into Q Desktop
-
-This is the right choice if you just want to use the applet daily.
+### Windows (PowerShell)
 
 ```powershell
-# 1. Close the Q Desktop app completely (right-click tray icon -> Quit)
-# 2. Clone next to the existing extensions
-cd "$env:USERPROFILE\.quio\v2\q_extensions"
-git clone https://github.com/fabioc-aloha/Q-Weather-USA-Pro.git Q-Weather-USA-Pro
-
-# 3. Install runtime dependencies
+git clone https://github.com/fabioc-aloha/Q-Weather-USA-Pro.git
 cd Q-Weather-USA-Pro
-npm install --omit=dev
-
-# 4. Restart Q Desktop. The new applet appears as "Q Weather USA Pro".
+pwsh -File scripts/install.ps1
+# To remove later:
+pwsh -File scripts/uninstall.ps1
 ```
 
-To uninstall, delete `~/.quio/v2/q_extensions/Q-Weather-USA-Pro/` and restart
-Q Desktop.
+### macOS / Linux
 
-### Option 2: Dev mode (for development / experimentation)
+```bash
+git clone https://github.com/fabioc-aloha/Q-Weather-USA-Pro.git
+cd Q-Weather-USA-Pro
+bash scripts/install.sh
+# To remove later:
+bash scripts/uninstall.sh
+```
 
-Run the applet directly. It sends signals to your keyboard in real time
-without going through the Q Desktop install path.
+Both scripts default to slot id `9001` and origin `(1, 1)` (which lights up
+4 keys on the upper-left of your keyboard). To override:
+
+```powershell
+# Windows
+pwsh -File scripts/install.ps1 -AppletId 9002 -Origin @{x=4; y=0}
+```
+
+```bash
+# Mac / Linux
+bash scripts/install.sh 9002 4 0    # appletId, originX, originY
+```
+
+After install, **start Q Desktop**, find **Q Weather USA Pro** in the applet
+list, and use the search box to pick your city. The default is Charlotte, NC.
+
+### Rollback
+
+If anything goes wrong, the install script wrote a backup of the registry
+to `~/.quio/v2/q_storage/main/extensions.bak-<timestamp>`. Stop Q Desktop,
+copy the backup over the registry, and remove the slot/storage folders:
+
+```powershell
+# Windows
+Stop-Process -Name das-keyboard-q
+Copy-Item -Force "$env:USERPROFILE\.quio\v2\q_storage\main\extensions.bak-*" `
+                 "$env:USERPROFILE\.quio\v2\q_storage\main\extensions"
+```
+
+### Dev mode (for development / experimentation)
+
+Run the applet's data pipeline directly against the keyboard without
+touching the install path. Q Desktop must be running.
 
 ```powershell
 git clone https://github.com/fabioc-aloha/Q-Weather-USA-Pro.git
 cd Q-Weather-USA-Pro
 npm install
 
-# Replace lat/lon with your location. Q Desktop must be running.
-node src/index.js dev '{\"applet\":{\"user\":{\"location\":\"35.2271,-80.8431|Charlotte, NC\"}},\"geometry\":{\"width\":4,\"height\":1,\"origin\":{\"x\":1,\"y\":1}}}'
+node scripts/dev/live.dev.mjs "Charlotte"
+# or
+node scripts/dev/live.dev.mjs "Seattle"
 ```
+
+This bypasses the SDK and POSTs signals to Q Desktop directly, so it shows
+the full data pipeline (geocode → resolve grid → forecast + alerts → keys)
+without the install / configure cycle.
 
 ## Configure
 
@@ -86,12 +126,12 @@ up the official NWS forecast grid.
 
 ## Data sources
 
-| Purpose | Provider | Cost | API key |
-|---|---|---|---|
-| City search | Open-Meteo geocoding | Free | None |
-| Forecast | api.weather.gov (NWS grid endpoint) | Free | None |
-| Alerts | api.weather.gov (active alerts by point) | Free | None |
-| Forecast page link | forecast.weather.gov | Free | None |
+| Purpose            | Provider                                 | Cost | API key |
+| ------------------ | ---------------------------------------- | ---- | ------- |
+| City search        | Open-Meteo geocoding                     | Free | None    |
+| Forecast           | api.weather.gov (NWS grid endpoint)      | Free | None    |
+| Alerts             | api.weather.gov (active alerts by point) | Free | None    |
+| Forecast page link | forecast.weather.gov                     | Free | None    |
 
 NWS asks API consumers to identify themselves with a User-Agent header —
 this applet sends one identifying itself and linking to this repo per
@@ -120,18 +160,30 @@ src/
     geocoding.js           # Open-Meteo city search
   render/
     forecast-to-keys.js    # Forecast + alert -> Point row + HTML message
+  util/
+    http.js                # fetchJson helper (timeout + error wrapper)
   config/
     colors.js              # Palette, weather enum, User-Agent
+  types.d.ts               # Ambient types for daskeyboard-applet SDK
 test/
-  nws.test.js
-  geocoding.test.js
-  render.test.js
+  http.test.js             # HTTP layer with stubbed fetch
+  nws.test.js              # shortForecast classifier + severityRank + URL
+  geocoding.test.js        # geocoding result mapping + key parsing
+  render.test.js           # selectDaytimePeriods + renderRow + renderMessage
   fixtures/forecast-sample.json
+scripts/
+  install.ps1              # Windows: register applet with Q Desktop
+  install.sh               # macOS / Linux: same, with Node-driven JSON edit
+  uninstall.ps1            # Windows: remove registry entry + slot
+  uninstall.sh             # macOS / Linux: same
+  dev/
+    live.dev.mjs           # Live test against real APIs + real keyboard
+    smoke.dev.js           # Console-only smoke (no signal POST)
 ```
 
 ## Status
 
-Active. v1.0.0. Contributions welcome.
+Active. v1.0.1. Contributions welcome.
 
 ## License
 
