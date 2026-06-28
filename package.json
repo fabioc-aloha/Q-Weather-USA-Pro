@@ -1,0 +1,76 @@
+{
+  "name": "q-weather-usa-pro",
+  "displayName": "Q Weather USA Pro",
+  "description": "Modern US weather forecast and severe-weather alerts for Das Keyboard Q.",
+  "longDescription": "Q Weather USA Pro displays a 4-day NWS forecast plus active severe-weather alerts on your Das Keyboard Q. Search any US city by name (no zone IDs). Click a key to open the official NWS forecast page.",
+  "version": "1.0.0",
+  "publisher": "fabioc-aloha",
+  "officialProductName": "Q Weather USA Pro",
+  "appUrl": "https://github.com/fabioc-aloha/Q-Weather-USA-Pro",
+  "isSingleton": false,
+  "videoUrl": "",
+  "icon": "assets/icon.png",
+  "image": "assets/image-missing.png",
+  "publisherName": "fabioc-aloha",
+  "authorName": "fabioc-aloha",
+  "authorUrl": "https://github.com/fabioc-aloha",
+  "issuesUrl": "https://github.com/fabioc-aloha/Q-Weather-USA-Pro/issues",
+  "homePageUrl": "https://github.com/fabioc-aloha/Q-Weather-USA-Pro",
+  "developerRepoUrl": "https://github.com/fabioc-aloha/Q-Weather-USA-Pro",
+  "licenseUrl": "https://opensource.org/licenses/MIT",
+  "changelogUrl": "CHANGELOG.md",
+  "license": "MIT",
+  "readMeUrl": "README.md",
+  "readMeEndUserUrl": "README.md",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0",
+    "das-keyboard-q": "3.2.4"
+  },
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "lint": "eslint src test",
+    "format": "prettier --write src test",
+    "format:check": "prettier --check src test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "daskeyboard-applet": "^2.11.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.5.0"
+  },
+  "qConfig": {
+    "geometry": {
+      "width": 4,
+      "height": 1,
+      "defaults": {
+        "origin": {
+          "x": 0,
+          "y": 1
+        }
+      }
+    },
+    "questions": [
+      {
+        "key": "location",
+        "label": "Search a US city",
+        "help": "Type a city name (e.g. Charlotte, Austin, Seattle). Selects the official NWS forecast point for that location.",
+        "required": true,
+        "order": 1,
+        "controlType": "search",
+        "options": []
+      }
+    ],
+    "requirements": {
+      "applet": {
+        "location": "select"
+      }
+    }
+  }
+}

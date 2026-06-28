@@ -1,0 +1,86 @@
+{
+  "@context": [],
+  "type": "Feature",
+  "properties": {
+    "updated": "2026-06-28T13:24:00-05:00",
+    "periods": [
+      {
+        "number": 1,
+        "name": "This Afternoon",
+        "startTime": "2026-06-28T14:00:00-05:00",
+        "isDaytime": true,
+        "temperature": 90,
+        "temperatureUnit": "F",
+        "probabilityOfPrecipitation": { "unitCode": "wmoUnit:percent", "value": 0 },
+        "shortForecast": "Sunny",
+        "detailedForecast": "Sunny. Near steady temperature in the lower 90s. South winds around 15 mph."
+      },
+      {
+        "number": 2,
+        "name": "Tonight",
+        "startTime": "2026-06-28T20:00:00-05:00",
+        "isDaytime": false,
+        "temperature": 72,
+        "temperatureUnit": "F",
+        "probabilityOfPrecipitation": { "unitCode": "wmoUnit:percent", "value": 30 },
+        "shortForecast": "Chance Showers And Thunderstorms",
+        "detailedForecast": "A 30 percent chance of showers and thunderstorms after midnight."
+      },
+      {
+        "number": 3,
+        "name": "Monday",
+        "startTime": "2026-06-29T06:00:00-05:00",
+        "isDaytime": true,
+        "temperature": 88,
+        "temperatureUnit": "F",
+        "probabilityOfPrecipitation": { "unitCode": "wmoUnit:percent", "value": 60 },
+        "shortForecast": "Showers And Thunderstorms Likely",
+        "detailedForecast": "Showers and thunderstorms likely. High near 88."
+      },
+      {
+        "number": 4,
+        "name": "Monday Night",
+        "startTime": "2026-06-29T20:00:00-05:00",
+        "isDaytime": false,
+        "temperature": 70,
+        "temperatureUnit": "F",
+        "probabilityOfPrecipitation": { "unitCode": "wmoUnit:percent", "value": 40 },
+        "shortForecast": "Chance Showers",
+        "detailedForecast": "A 40 percent chance of showers."
+      },
+      {
+        "number": 5,
+        "name": "Tuesday",
+        "startTime": "2026-06-30T06:00:00-05:00",
+        "isDaytime": true,
+        "temperature": 85,
+        "temperatureUnit": "F",
+        "probabilityOfPrecipitation": { "unitCode": "wmoUnit:percent", "value": 20 },
+        "shortForecast": "Partly Cloudy",
+        "detailedForecast": "Partly cloudy. High near 85."
+      },
+      {
+        "number": 6,
+        "name": "Tuesday Night",
+        "startTime": "2026-06-30T20:00:00-05:00",
+        "isDaytime": false,
+        "temperature": 68,
+        "temperatureUnit": "F",
+        "probabilityOfPrecipitation": { "unitCode": "wmoUnit:percent", "value": 10 },
+        "shortForecast": "Mostly Clear",
+        "detailedForecast": "Mostly clear. Low around 68."
+      },
+      {
+        "number": 7,
+        "name": "Wednesday",
+        "startTime": "2026-07-01T06:00:00-05:00",
+        "isDaytime": true,
+        "temperature": 92,
+        "temperatureUnit": "F",
+        "probabilityOfPrecipitation": { "unitCode": "wmoUnit:percent", "value": 0 },
+        "shortForecast": "Sunny",
+        "detailedForecast": "Sunny. High near 92."
+      }
+    ]
+  }
+}
