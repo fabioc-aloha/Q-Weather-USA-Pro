@@ -3,7 +3,7 @@
   "displayName": "Q Weather USA Pro",
   "description": "Modern US weather forecast and severe-weather alerts for Das Keyboard Q.",
   "longDescription": "Q Weather USA Pro displays a 4-day NWS forecast plus active severe-weather alerts on your Das Keyboard Q. Search any US city by name (no zone IDs). Click a key to open the official NWS forecast page.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "publisher": "fabioc-aloha",
   "officialProductName": "Q Weather USA Pro",
   "appUrl": "https://github.com/fabioc-aloha/Q-Weather-USA-Pro",

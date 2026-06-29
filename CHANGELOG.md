@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.0.2 — 2026-06-29
+
+Maintenance release. No runtime behaviour change. All checks (32 tests,
+ESLint, Prettier, TypeScript) green on the new versions before and after
+the bumps.
+
+### Tooling
+
+- `tsconfig.json`: added explicit `types: ["node"]` so `tsc --noEmit`
+  resolves Node built-in module typings under TypeScript 6 (which
+  stopped auto-discovering `@types/node` from `node_modules`).
+- Bumped dev-only dependencies via Dependabot, all CI-validated:
+  - `typescript` 5.9.3 → 6.0.3
+  - `eslint` 9.39.4 → 10.6.0
+  - `@types/node` 20.19.43 → 26.0.1
+  - `globals` 15.15.0 → 17.7.0
+- Bumped GitHub Actions:
+  - `actions/checkout` v4 → v7
+  - `actions/setup-node` v4 → v6
+
 ## 1.0.1 — 2026-06-28
 
 Follow-up release applying every finding from the v1.0.0 code review.

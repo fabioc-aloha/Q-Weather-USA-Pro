@@ -183,7 +183,7 @@ scripts/
 
 ## Status
 
-Active. v1.0.1. Contributions welcome.
+Active. v1.0.2. Contributions welcome.
 
 ## License
 
