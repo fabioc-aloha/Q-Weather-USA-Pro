@@ -1,0 +1,19 @@
+{
+  "eslint.enable": true,
+  "chat.agentSkillsLocations": {
+    ".github/skills": true,
+    ".github/skills/local": true
+  },
+  "chat.promptFilesLocations": {
+    ".github/prompts": true,
+    ".github/prompts/local": true
+  },
+  "chat.agentFilesLocations": {
+    ".github/agents": true,
+    ".github/agents/local": true
+  },
+  "chat.permissions.default": "autoApprove",
+  "markdown.styles": [
+    ".vscode/markdown-light.css"
+  ]
+}

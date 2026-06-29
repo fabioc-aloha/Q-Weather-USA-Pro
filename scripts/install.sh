@@ -65,8 +65,27 @@ if (prefix !== '~{~') {
   console.error(`Unexpected registry prefix: ${JSON.stringify(prefix)}`);
   process.exit(1);
 }
-const entries = JSON.parse(raw.slice(3));
+const allEntries = JSON.parse(raw.slice(3));
 const pkg = JSON.parse(readFileSync(join(slot, 'package.json'), 'utf8'));
+
+// Dedupe: strip any existing entries for this appletId (and clean their
+// per-extension storage folders) so re-running the script replaces in place
+// instead of stacking duplicate registry entries.
+import { rmSync, existsSync } from 'node:fs';
+const appletIdNum = Number(appletId);
+const existing = allEntries.filter((e) => e.appletId === appletIdNum);
+const entries = allEntries.filter((e) => e.appletId !== appletIdNum);
+for (const e of existing) {
+  const loc = e?.config?.storageLocation;
+  if (loc && existsSync(loc)) {
+    rmSync(loc, { recursive: true, force: true });
+    console.log(`  removed stale storage: ${loc}`);
+  }
+}
+if (existing.length > 0) {
+  console.log(`Replaced ${existing.length} existing entry(ies) for appletId=${appletId}`);
+}
+
 const extId = randomUUID();
 const storagePath = join(quio, 'q_storage', 'extensions', extId);
 mkdirSync(storagePath, { recursive: true });

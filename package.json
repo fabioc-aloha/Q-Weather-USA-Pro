@@ -21,11 +21,11 @@
   "changelogUrl": "CHANGELOG.md",
   "license": "MIT",
   "readMeUrl": "README.md",
-  "readMeEndUserUrl": "README.md",
+  "readMeEndUserUrl": "README_ENDUSER.md",
   "type": "module",
   "engines": {
     "node": ">=18.0.0",
-    "das-keyboard-q": "3.2.4"
+    "das-keyboard-q": ">=3.0.0"
   },
   "main": "src/index.js",
   "scripts": {

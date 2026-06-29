@@ -17,11 +17,6 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 
-# Editor
-.vscode/*
-!.vscode/settings.json.example
-.idea/
-
 # Env
 .env
 .env.local

@@ -165,10 +165,17 @@ export function shortForecastToWeatherType(shortForecast) {
 /**
  * Build a clickable URL for the NWS public forecast page for a point.
  *
+ * Callers in this applet only pass numerically validated lat/lon (see
+ * `parseLocationKey()`), so injection is not currently reachable. The
+ * `encodeURIComponent` calls are defense-in-depth in case a future caller
+ * forwards an unvalidated value.
+ *
  * @param {number} lat
  * @param {number} lon
  * @returns {string}
  */
 export function nwsForecastPageUrl(lat, lon) {
-  return `https://forecast.weather.gov/MapClick.php?lat=${lat}&lon=${lon}`;
+  const latEnc = encodeURIComponent(String(lat));
+  const lonEnc = encodeURIComponent(String(lon));
+  return `https://forecast.weather.gov/MapClick.php?lat=${latEnc}&lon=${lonEnc}`;
 }

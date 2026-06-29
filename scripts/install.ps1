@@ -84,8 +84,23 @@ New-Item -ItemType Directory -Force -Path $storagePath | Out-Null
 $raw = Get-Content $reg -Raw
 $prefix = $raw.Substring(0, 3)
 if ($prefix -ne '~{~') { throw "Unexpected registry prefix: '$prefix'" }
-$entries = $raw.Substring(3) | ConvertFrom-Json
+$allEntries = @($raw.Substring(3) | ConvertFrom-Json)
 $pkg = Get-Content (Join-Path $slot 'package.json') -Raw | ConvertFrom-Json
+
+# Dedupe: strip any existing entries for this AppletId (and clean their
+# per-extension storage folders) so re-running the script replaces in place
+# instead of stacking duplicate registry entries.
+$existing = @($allEntries | Where-Object { $_.appletId -eq $AppletId })
+$entries = @($allEntries | Where-Object { $_.appletId -ne $AppletId })
+foreach ($e in $existing) {
+  if ($e.config.storageLocation -and (Test-Path $e.config.storageLocation)) {
+    Remove-Item -Recurse -Force $e.config.storageLocation
+    Write-Host "  removed stale storage: $($e.config.storageLocation)"
+  }
+}
+if ($existing.Count -gt 0) {
+  Write-Host "Replaced $($existing.Count) existing entry(ies) for appletId=$AppletId"
+}
 
 $newEntry = [ordered]@{
   releaseUrl  = ''
